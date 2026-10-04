@@ -8,7 +8,8 @@ BOOT_SOURCES = \
 	boot/kickstart.asm
 
 KERNEL_SOURCES = \
-	kernel/kernel.asm
+	kernel/kernel.asm \
+	kernel/drivers/video/vga.asm
 
 BOOT_BIN = $(BUILD)/boot.bin
 KERNEL_BIN = $(BUILD)/kernel.bin

@@ -79,6 +79,41 @@ end_boot_sector:
 
 ;Next Sector Start
 next_sector:
+
+    .load_kernel_header:
+        mov ax, 0x1000
+        mov fs, ax
+        xor bx, bx
+
+        mov eax, 2
+        mov cx, 1
+        call read_sectors
+        jc .hang
+
+    .check_kernel_header:
+        mov ax, 0x1000
+        mov ds, ax
+
+        cmp dword [0], 0x54504553
+        jne .bad_kernel
+
+        mov eax, dword [4]
+        add eax, 511
+        shr eax, 9
+
+        mov cx, ax
+
+        xor dx, dx
+        mov ds, dx
+
+    .load_kernel:
+        mov ax, 0x1000
+        mov fs, ax
+        xor bx, bx
+
+        mov eax, 2
+        call read_sectors
+        jc .hang
     
     .print_string:
         mov si, message
@@ -102,8 +137,13 @@ next_sector:
         mov eax, cr0
         or eax, 1
         mov cr0, eax
-
         jmp CODE32:protected_mode
+
+    .bad_kernel:
+        jmp $
+
+    .hang:
+        jmp $
 
 message:
     db "SeptaDisk v0.0.1", 0
@@ -125,16 +165,9 @@ protected_mode:
     mov esp, 0x90000
     cld
 
-    call clear_screen
-
-    mov esi, message32_title
-    mov edi, 0xB8000
-    call print_string32
-
-    mov esi, message32_mode
-    mov edi, 0xB8000 + 160
-    call print_string32
-
+    mov eax, dword [0x10000 + 8]
+    add eax, 0x10000
+    jmp eax
 .hang:
     cli
     hlt
@@ -176,7 +209,6 @@ message32_title:
 
 message32_mode:
     db "Currently in 32bit Mode", 0
-
 
 bits 16
 
