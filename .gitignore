@@ -1,0 +1,12 @@
+# Build output
+build/
+
+# VSCodium
+.vscode/
+
+# NASM listing/debug files
+*.lst
+
+# QEMU junk
+*.log
+*.core
